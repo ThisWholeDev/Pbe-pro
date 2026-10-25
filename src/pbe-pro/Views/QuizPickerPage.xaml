@@ -1,0 +1,86 @@
+<Page x:Class="PbePro.Views.QuizPickerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Start a Quiz">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Page.Resources>
+
+    <Grid Margin="48,16,48,32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <ui:Button Icon="{ui:SymbolIcon ArrowLeft24}" Content="Home"
+                       Command="{Binding GoHomeCommand}" Margin="0,0,16,0" />
+            <ui:TextBlock Text="Start a quiz" FontTypography="Title" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Margin="0,20,0,12">
+            <CheckBox Content="Shuffle question order" IsChecked="{Binding Shuffle}" />
+            <CheckBox Content="Start the timer automatically on each question"
+                      IsChecked="{Binding AutoStartTimer}" />
+            <CheckBox Content="Hide question categories" IsChecked="{Binding HideCategory}" />
+        </StackPanel>
+
+        <!-- Practice what the team missed last time -->
+        <ui:Card Grid.Row="2" Padding="16" Margin="0,0,0,12"
+                 Visibility="{Binding HasMissed, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+                <ui:Button DockPanel.Dock="Right" Icon="{ui:SymbolIcon Play24}" Content="Start"
+                           Appearance="Primary" VerticalAlignment="Center" Margin="16,0,0,0"
+                           Command="{Binding PracticeMissedCommand}" />
+                <StackPanel VerticalAlignment="Center">
+                    <ui:TextBlock Text="Practice missed questions" FontWeight="SemiBold" />
+                    <ui:TextBlock Text="{Binding MissedText}" TextWrapping="Wrap" Margin="0,4,0,0"
+                                  Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </DockPanel>
+        </ui:Card>
+
+        <Grid Grid.Row="3">
+            <ui:TextBlock Text="No quizzes yet. Create one under Edit Quizzes."
+                          HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0"
+                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                          Visibility="{Binding HasNoQuizzes, Converter={StaticResource BoolToVis}}" />
+
+            <ListBox ItemsSource="{Binding Quizzes}"
+                     Visibility="{Binding HasQuizzes, Converter={StaticResource BoolToVis}}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="4,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <ui:TextBlock Text="{Binding Name}" FontWeight="SemiBold"
+                                              TextTrimming="CharacterEllipsis" />
+                                <ui:TextBlock Text="{Binding Details}" Margin="0,4,0,0"
+                                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Play24}" Content="Start"
+                                       Appearance="Primary" VerticalAlignment="Center"
+                                       Command="{Binding DataContext.StartCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                       CommandParameter="{Binding}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Grid>
+</Page>

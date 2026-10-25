@@ -1,0 +1,138 @@
+<Page x:Class="PbePro.Views.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Settings">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Page.Resources>
+
+    <Grid>
+        <Grid Margin="48,16,48,48" MaxWidth="1100" MaxHeight="760">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <ui:Button Icon="{ui:SymbolIcon ArrowLeft24}"
+                           Content="Home"
+                           Click="OnHomeClick"
+                           Margin="0,0,16,0" />
+                <ui:TextBlock Text="Settings" FontTypography="Title" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1" Margin="0,24,0,0" VerticalScrollBarVisibility="Auto">
+                <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+                    <!-- Theme -->
+                    <ui:Card Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <ui:TextBlock Text="Theme" FontTypography="Subtitle" />
+                            <ui:TextBlock Text="System follows your Windows light/dark setting."
+                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                          Margin="0,4,0,12" />
+                            <RadioButton GroupName="Theme" Content="Use system setting"
+                                         IsChecked="{Binding IsSystemTheme, Mode=TwoWay}" />
+                            <RadioButton GroupName="Theme" Content="Light"
+                                         IsChecked="{Binding IsLightTheme, Mode=TwoWay}" />
+                            <RadioButton GroupName="Theme" Content="Dark"
+                                         IsChecked="{Binding IsDarkTheme, Mode=TwoWay}" />
+                        </StackPanel>
+                    </ui:Card>
+
+                    <!-- When time runs out -->
+                    <ui:Card Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <ui:TextBlock Text="When time runs out" FontTypography="Subtitle" />
+                            <ui:TextBlock Text="The timer stops at 0:00 and the coach decides what happens next."
+                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                          Margin="0,4,0,12" />
+
+                            <DockPanel Margin="0,0,0,8">
+                                <ui:Button DockPanel.Dock="Right" Content="Test"
+                                           Command="{Binding TestFlashCommand}" />
+                                <ui:ToggleSwitch Content="Flash the screen" IsChecked="{Binding FlashOnExpire}" />
+                            </DockPanel>
+
+                            <DockPanel>
+                                <ui:Button DockPanel.Dock="Right" Content="Test"
+                                           Command="{Binding TestSoundCommand}" />
+                                <ui:ToggleSwitch Content="Play a sound" IsChecked="{Binding SoundOnExpire}" />
+                            </DockPanel>
+                        </StackPanel>
+                    </ui:Card>
+
+                    <!-- Display -->
+                    <ui:Card Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <ui:TextBlock Text="Display" FontTypography="Subtitle" />
+
+                            <ui:TextBlock Text="Question text size" Margin="0,12,0,6" />
+                            <ComboBox SelectedIndex="{Binding TextSizeIndex}" MinWidth="220"
+                                      HorizontalAlignment="Left" Margin="0,0,0,12">
+                                <ComboBoxItem Content="Small" />
+                                <ComboBoxItem Content="Medium" />
+                                <ComboBoxItem Content="Large" />
+                                <ComboBoxItem Content="Extra large" />
+                            </ComboBox>
+                            <ui:TextBlock Text="Who wrote Pride and Prejudice?"
+                                          FontSize="{Binding PreviewFontSize}" TextWrapping="Wrap"
+                                          Margin="0,0,0,16" />
+
+                            <ui:ToggleSwitch Content="Open in full screen" IsChecked="{Binding StartFullScreen}" />
+                            <ui:TextBlock Text="Press F11 at any time to switch full screen on or off."
+                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                          Margin="0,6,0,0" />
+                        </StackPanel>
+                    </ui:Card>
+
+                    <!-- Data folder -->
+                    <ui:Card Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <ui:TextBlock Text="Data folder" FontTypography="Subtitle" />
+                            <ui:TextBlock Text="Where your questions and quizzes are saved. Pick a OneDrive or Dropbox folder to share them."
+                                          TextWrapping="Wrap"
+                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                          Margin="0,4,0,12" />
+                            <ui:TextBlock Text="{Binding DataFolderPath}" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+                            <StackPanel Orientation="Horizontal">
+                                <ui:Button Content="Change..." Command="{Binding ChangeFolderCommand}"
+                                           Margin="0,0,8,0" />
+                                <ui:Button Content="Open folder" Command="{Binding OpenFolderCommand}"
+                                           Margin="0,0,8,0" />
+                                <ui:Button Content="Use default folder"
+                                           Command="{Binding UseDefaultFolderCommand}"
+                                           Visibility="{Binding IsCustomFolder, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ui:Card>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Used by the "Test" button for the flash. Doesn't block clicks. -->
+        <Border IsHitTestVisible="False" Background="#E5484D" Opacity="0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsFlashing}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         From="0" To="0.5" Duration="0:0:0.3"
+                                                         AutoReverse="True" RepeatBehavior="3x"
+                                                         FillBehavior="Stop" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+        </Border>
+    </Grid>
+</Page>

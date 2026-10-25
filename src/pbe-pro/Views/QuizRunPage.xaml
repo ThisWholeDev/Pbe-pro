@@ -1,0 +1,164 @@
+<Page x:Class="PbePro.Views.QuizRunPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Quiz">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <!-- Plain TextBlock so the colour triggers aren't overridden by WPF UI defaults. -->
+        <Style x:Key="TimerStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="76" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TimerLevel}" Value="1">
+                    <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCautionBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding TimerLevel}" Value="2">
+                    <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid Margin="48,16,48,32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header: progress and score -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <ui:TextBlock Grid.Column="0" Text="{Binding ProgressText}" FontTypography="Subtitle"
+                              VerticalAlignment="Center" />
+                <ui:TextBlock Grid.Column="1" Text="{Binding QuizName}"
+                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                              VerticalAlignment="Center" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <ui:TextBlock Text="{Binding ScoreText}" FontTypography="Subtitle"
+                                  VerticalAlignment="Center" />
+                    <ui:Button Focusable="False" Content="Full screen (F11)" Margin="16,0,0,0"
+                               Command="{Binding ToggleFullScreenCommand}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Question card -->
+            <ui:Card Grid.Row="1" Margin="0,16,0,16" Padding="32"
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0">
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding TimerText}" Style="{StaticResource TimerStyle}" />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                            <Border CornerRadius="12" Padding="14,4" Margin="0,0,10,0"
+                                    Background="{ui:ThemeResource ControlFillColorSecondaryBrush}">
+                                <ui:TextBlock Text="{Binding PointsText}" FontTypography="BodyStrong" />
+                            </Border>
+                            <ui:TextBlock Text="{Binding CategoryText}" VerticalAlignment="Center"
+                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                          Visibility="{Binding HasCategory, Converter={StaticResource BoolToVis}}" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <Grid Grid.Row="1" Margin="0,16">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center"
+                                      Visibility="{Binding IsNotPaused, Converter={StaticResource BoolToVis}}">
+                            <ui:TextBlock Text="{Binding QuestionText}"
+                                          FontSize="{Binding QuestionFontSize}"
+                                          TextWrapping="Wrap"
+                                          HorizontalAlignment="Center" />
+                        </ScrollViewer>
+
+                        <ui:TextBlock Text="Paused. Press P to resume." FontSize="40" TextWrapping="Wrap"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Center"
+                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                      Visibility="{Binding IsPaused, Converter={StaticResource BoolToVis}}" />
+                    </Grid>
+
+                    <StackPanel Grid.Row="2" MinHeight="96"
+                                Visibility="{Binding IsAnswerShown, Converter={StaticResource BoolToVis}}">
+                        <ui:TextBlock Text="Answer" FontTypography="BodyStrong"
+                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                        <ui:TextBlock Text="{Binding AnswerText}" FontSize="{Binding AnswerFontSize}" FontWeight="Bold"
+                                      TextWrapping="Wrap" Margin="0,4,0,0"
+                                      Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                    </StackPanel>
+                </Grid>
+            </ui:Card>
+
+            <!-- Controls -->
+            <DockPanel Grid.Row="2">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:Button Focusable="False" Content="{Binding PauseButtonText}"
+                               Command="{Binding TogglePauseCommand}" Margin="0,0,8,0" />
+                    <ui:Button Focusable="False" Content="Undo (Ctrl+Z)"
+                               IsEnabled="{Binding CanUndo}"
+                               Command="{Binding UndoCommand}" Margin="0,0,8,0" />
+                    <ui:Button Focusable="False" Content="End quiz (Esc)"
+                               Command="{Binding ExitCommand}" />
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right"
+                            IsEnabled="{Binding IsNotPaused}">
+                    <ui:Button Focusable="False" Content="Start timer (Space)" Appearance="Primary"
+                               MinWidth="190" Padding="24,14" FontSize="20" Margin="12,0,0,0"
+                               Visibility="{Binding IsReady, Converter={StaticResource BoolToVis}}"
+                               Command="{Binding StartTimerCommand}" />
+                    <ui:Button Focusable="False" Content="{Binding ShowAnswerButtonText}" MinWidth="190" Padding="24,14"
+                               FontSize="20" Margin="12,0,0,0"
+                               Visibility="{Binding ShowAnswerVisible, Converter={StaticResource BoolToVis}}"
+                               Command="{Binding ShowAnswerCommand}" />
+                    <ui:Button Focusable="False" Content="Correct (C)" Appearance="Success"
+                               MinWidth="190" Padding="24,14" FontSize="20" Margin="12,0,0,0"
+                               Visibility="{Binding IsAnswerShown, Converter={StaticResource BoolToVis}}"
+                               Command="{Binding MarkCorrectCommand}" />
+                    <ui:Button Focusable="False" Content="Incorrect (X)" Appearance="Danger"
+                               MinWidth="190" Padding="24,14" FontSize="20" Margin="12,0,0,0"
+                               Visibility="{Binding IsAnswerShown, Converter={StaticResource BoolToVis}}"
+                               Command="{Binding MarkIncorrectCommand}" />
+                </StackPanel>
+
+            </DockPanel>
+        </Grid>
+
+        <!-- Red pulse when time runs out. Doesn't block clicks. -->
+        <Border IsHitTestVisible="False" Background="#E5484D" Opacity="0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsFlashing}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         From="0" To="0.5" Duration="0:0:0.3"
+                                                         AutoReverse="True" RepeatBehavior="3x"
+                                                         FillBehavior="Stop" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+        </Border>
+    </Grid>
+</Page>

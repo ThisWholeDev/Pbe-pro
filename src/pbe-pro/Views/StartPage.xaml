@@ -1,0 +1,92 @@
+<Page x:Class="PbePro.Views.StartPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Start">
+
+    <Page.Resources>
+        <Style x:Key="TileButton" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="Padding" Value="24" />
+        </Style>
+    </Page.Resources>
+
+    <!-- MaxWidth/MaxHeight stop the tiles growing without limit when the window is maximized; they stay centered. -->
+    <Grid Margin="48,16,48,48" MaxWidth="1100" MaxHeight="760">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="8,0,0,24">
+            <ui:TextBlock Text="PBE Pro" FontTypography="Title" />
+            <ui:TextBlock Text="Get the team ready for competition."
+                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- One large Start button across the top; the other options share the row directly beneath it. -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ui:Button Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Style="{StaticResource TileButton}"
+                       Appearance="Primary" Command="{Binding StartQuizCommand}">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="Play24" FontSize="80" />
+                    <ui:TextBlock Text="Start Quiz"
+                                  FontTypography="Title"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,16,0,0" />
+                </StackPanel>
+            </ui:Button>
+
+            <ui:Button Grid.Row="1" Grid.Column="0" Style="{StaticResource TileButton}"
+                       Command="{Binding EditQuestionsCommand}">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="Edit24" FontSize="40" />
+                    <ui:TextBlock Text="Edit Questions" FontTypography="BodyStrong"
+                                  HorizontalAlignment="Center" Margin="0,8,0,0" />
+                </StackPanel>
+            </ui:Button>
+
+            <ui:Button Grid.Row="1" Grid.Column="1" Style="{StaticResource TileButton}"
+                       Command="{Binding EditQuizzesCommand}">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="DocumentBulletList24" FontSize="40" />
+                    <ui:TextBlock Text="Edit Quizzes" FontTypography="BodyStrong"
+                                  HorizontalAlignment="Center" Margin="0,8,0,0" />
+                </StackPanel>
+            </ui:Button>
+
+            <ui:Button Grid.Row="1" Grid.Column="2" Style="{StaticResource TileButton}"
+                       Command="{Binding OpenHistoryCommand}">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="History24" FontSize="40" />
+                    <ui:TextBlock Text="History" FontTypography="BodyStrong"
+                                  HorizontalAlignment="Center" Margin="0,8,0,0" />
+                </StackPanel>
+            </ui:Button>
+
+            <ui:Button Grid.Row="1" Grid.Column="3" Style="{StaticResource TileButton}"
+                       Command="{Binding OpenSettingsCommand}">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="Settings24" FontSize="40" />
+                    <ui:TextBlock Text="Settings" FontTypography="BodyStrong"
+                                  HorizontalAlignment="Center" Margin="0,8,0,0" />
+                </StackPanel>
+            </ui:Button>
+        </Grid>
+    </Grid>
+</Page>

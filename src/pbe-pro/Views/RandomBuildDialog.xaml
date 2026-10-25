@@ -1,0 +1,48 @@
+<ui:FluentWindow x:Class="PbePro.Views.RandomBuildDialog"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="Build randomly"
+                 Width="460" SizeToContent="Height"
+                 MinHeight="360"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round"
+                 WindowStartupLocation="CenterOwner"
+                 ResizeMode="NoResize"
+                 ShowInTaskbar="False">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Title="Build randomly" ShowMinimize="False" ShowMaximize="False" />
+
+        <StackPanel Grid.Row="1" Margin="24,8,24,24">
+            <ui:TextBlock Text="How many questions?" FontTypography="BodyStrong" />
+            <ui:TextBox x:Name="CountBox" Text="10" Margin="0,6,0,16" Width="80" HorizontalAlignment="Left" />
+
+            <ui:TextBlock Text="Category" FontTypography="BodyStrong" />
+            <ComboBox x:Name="CategoryBox" Margin="0,6,0,16" HorizontalAlignment="Stretch" />
+
+            <ui:TextBlock Text="Points" FontTypography="BodyStrong" />
+            <ComboBox x:Name="PointsBox" Margin="0,6,0,16" HorizontalAlignment="Stretch" />
+
+            <ui:TextBlock Text="What should happen to the questions already in this quiz?"
+                          FontTypography="BodyStrong" TextWrapping="Wrap" />
+            <RadioButton x:Name="AddRadio" GroupName="Mode" Content="Add to this quiz"
+                         IsChecked="True" Margin="0,8,0,4" />
+            <RadioButton x:Name="ReplaceRadio" GroupName="Mode" Content="Replace this quiz's questions"
+                         Margin="0,0,0,8" />
+
+            <ui:TextBlock x:Name="ErrorText" Margin="0,0,0,12"
+                          Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                <ui:Button Content="Cancel" Click="OnCancel" Margin="0,0,8,0" />
+                <ui:Button Content="Build" Appearance="Primary" Click="OnBuild" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

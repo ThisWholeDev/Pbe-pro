@@ -1,0 +1,54 @@
+<Page x:Class="PbePro.Views.QuizIntroPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Ready">
+
+    <Grid Margin="48,16,48,32">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="760">
+            <ui:TextBlock Text="Ready to begin?" FontTypography="Subtitle" HorizontalAlignment="Center"
+                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+
+            <ui:TextBlock Text="{Binding QuizName}" FontSize="48" FontWeight="SemiBold"
+                          TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,32" />
+
+            <UniformGrid Rows="1">
+                <ui:Card Margin="0,0,12,0" Padding="20" HorizontalAlignment="Stretch">
+                    <StackPanel>
+                        <ui:TextBlock Text="{Binding QuestionCountText}" FontSize="36" FontWeight="SemiBold" />
+                        <ui:TextBlock Text="{Binding QuestionCaption}"
+                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </ui:Card>
+                <ui:Card Margin="0,0,12,0" Padding="20" HorizontalAlignment="Stretch">
+                    <StackPanel>
+                        <ui:TextBlock Text="{Binding PointsText}" FontSize="36" FontWeight="SemiBold" />
+                        <ui:TextBlock Text="{Binding PointsCaption}"
+                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </ui:Card>
+                <ui:Card Padding="20" HorizontalAlignment="Stretch">
+                    <StackPanel>
+                        <ui:TextBlock Text="{Binding TimeText}" FontSize="36" FontWeight="SemiBold" />
+                        <ui:TextBlock Text="if every timer runs out"
+                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </ui:Card>
+            </UniformGrid>
+
+            <ui:TextBlock Text="{Binding TimerModeText}" HorizontalAlignment="Center" Margin="0,24,0,0"
+                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+
+            <ui:Button Focusable="False" Content="Begin quiz (Space)" Appearance="Primary"
+                       FontSize="22" Padding="48,16" HorizontalAlignment="Center" Margin="0,28,0,20"
+                       Command="{Binding BeginCommand}" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <ui:Button Focusable="False" Icon="{ui:SymbolIcon ArrowLeft24}" Content="Back (Esc)"
+                           Command="{Binding BackCommand}" Margin="0,0,8,0" />
+                <ui:Button Focusable="False" Content="Full screen (F11)"
+                           Command="{Binding ToggleFullScreenCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>
