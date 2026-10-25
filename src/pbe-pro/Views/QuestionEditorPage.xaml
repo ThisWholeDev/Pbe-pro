@@ -1,0 +1,178 @@
+<Page x:Class="PbePro.Views.QuestionEditorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Edit Questions">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Page.Resources>
+
+    <Grid Margin="48,16,48,32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:Button Icon="{ui:SymbolIcon Add24}" Content="Add" Appearance="Primary"
+                           Command="{Binding AddQuestionCommand}" Margin="0,0,8,0" />
+                <ui:Button Icon="{ui:SymbolIcon ArrowDownload24}" Content="Import"
+                           Command="{Binding ImportCommand}" Margin="0,0,8,0" />
+                <ui:Button Icon="{ui:SymbolIcon ArrowUpload24}" Content="Export"
+                           Command="{Binding ExportCommand}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <ui:Button Icon="{ui:SymbolIcon ArrowLeft24}" Content="Home"
+                           Command="{Binding GoHomeCommand}" Margin="0,0,16,0" />
+                <ui:TextBlock Text="Questions" FontTypography="Title" VerticalAlignment="Center" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Warnings about entries that couldn't be loaded, or a failed save -->
+        <Border Grid.Row="1" Margin="0,16,0,0" Padding="12" CornerRadius="4"
+                Background="{ui:ThemeResource SystemFillColorCautionBackgroundBrush}"
+                Visibility="{Binding HasBanner, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+                <ui:Button DockPanel.Dock="Right" Content="Dismiss" VerticalAlignment="Top"
+                           Command="{Binding DismissBannerCommand}" Margin="12,0,0,0" />
+                <ScrollViewer MaxHeight="110" VerticalScrollBarVisibility="Auto">
+                    <ui:TextBlock Text="{Binding BannerText}" TextWrapping="Wrap" />
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Content -->
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.4*" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="1*" MinWidth="320" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: search, filters, list -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <ui:TextBox Grid.Row="0" PlaceholderText="Search questions, answers, categories..."
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+
+                <Grid Grid.Row="1" Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Grid.Column="0" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding CategoryOptions}"
+                              SelectedItem="{Binding SelectedCategoryFilter}" />
+                    <ComboBox Grid.Column="2" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding PointsOptions}"
+                              SelectedItem="{Binding SelectedPointsFilter}" />
+                </Grid>
+
+                <ui:TextBlock Grid.Row="2" Text="{Binding CountText}" Margin="2,10,0,6"
+                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+
+                <ListBox x:Name="QuestionList" Grid.Row="3"
+                         ItemsSource="{Binding QuestionsView}"
+                         SelectedItem="{Binding SelectedQuestion, Mode=TwoWay}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <ui:TextBlock Text="{Binding Preview}" FontWeight="SemiBold"
+                                                  TextTrimming="CharacterEllipsis" />
+                                    <ui:TextBlock Text="{Binding Answer, StringFormat='Answer: {0}'}"
+                                                  TextTrimming="CharacterEllipsis"
+                                                  Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                    <ui:TextBlock Text="Incomplete: needs question text and an answer to be saved"
+                                                  Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}"
+                                                  Visibility="{Binding IsIncomplete, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                    <Border CornerRadius="10" Padding="8,2" HorizontalAlignment="Right"
+                                            Background="{ui:ThemeResource ControlFillColorSecondaryBrush}">
+                                        <ui:TextBlock Text="{Binding Points, StringFormat='{}{0} pt'}" />
+                                    </Border>
+                                    <ui:TextBlock Text="{Binding Category}" HorizontalAlignment="Right" Margin="0,4,0,0"
+                                                  Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
+            <!-- Right: edit panel -->
+            <Grid Grid.Column="2">
+                <ui:TextBlock Text="Select a question to edit it, or click Add."
+                              HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0"
+                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}">
+                    <ui:TextBlock.Style>
+                        <Style TargetType="ui:TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasSelection}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:TextBlock.Style>
+                </ui:TextBlock>
+
+                <ui:Card VerticalAlignment="Top" Padding="20"
+                         Visibility="{Binding HasSelection, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <ui:TextBlock Text="Question" FontTypography="BodyStrong" />
+                        <ui:TextBox x:Name="QuestionTextBox" Margin="0,6,0,16"
+                                    AcceptsReturn="True" TextWrapping="Wrap" MinHeight="90"
+                                    Text="{Binding SelectedQuestion.Text, UpdateSourceTrigger=LostFocus}" />
+
+                        <ui:TextBlock Text="Answer" FontTypography="BodyStrong" />
+                        <ui:TextBox x:Name="AnswerTextBox" Margin="0,6,0,16"
+                                    PlaceholderText="Press Enter to save and add the next question"
+                                    KeyDown="OnAnswerKeyDown"
+                                    Text="{Binding SelectedQuestion.Answer, UpdateSourceTrigger=LostFocus}" />
+
+                        <ui:TextBlock Text="Points" FontTypography="BodyStrong" />
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,16">
+                            <ui:TextBox Width="80"
+                                        Text="{Binding SelectedQuestion.Points, UpdateSourceTrigger=LostFocus}" />
+                            <ui:TextBlock Text="{Binding SelectedQuestion.TimeHint}"
+                                          VerticalAlignment="Center" Margin="12,0,0,0"
+                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+
+                        <ui:TextBlock Text="Category" FontTypography="BodyStrong" />
+                        <ComboBox IsEditable="True" Margin="0,6,0,24" HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding CategorySuggestions}"
+                                  Text="{Binding SelectedQuestion.Category, UpdateSourceTrigger=LostFocus}" />
+
+                        <ui:Button Icon="{ui:SymbolIcon Delete24}" Content="Delete question"
+                                   Appearance="Danger" Command="{Binding DeleteQuestionCommand}" />
+                    </StackPanel>
+                </ui:Card>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

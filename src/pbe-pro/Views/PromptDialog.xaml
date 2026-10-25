@@ -1,0 +1,32 @@
+<ui:FluentWindow x:Class="PbePro.Views.PromptDialog"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="Prompt"
+                 Width="440" SizeToContent="Height"
+                 MinHeight="200"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round"
+                 WindowStartupLocation="CenterOwner"
+                 ResizeMode="NoResize"
+                 ShowInTaskbar="False">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar x:Name="DialogTitleBar" ShowMinimize="False" ShowMaximize="False" />
+
+        <StackPanel Grid.Row="1" Margin="24,8,24,24">
+            <ui:TextBlock x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,12"
+                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+            <ui:TextBox x:Name="ValueBox" Margin="0,0,0,20" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Content="Cancel" Click="OnCancel" Margin="0,0,8,0" />
+                <ui:Button x:Name="ConfirmButton" Appearance="Primary" Click="OnConfirm" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

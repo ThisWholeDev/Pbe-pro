@@ -1,0 +1,151 @@
+<Page x:Class="PbePro.Views.ResultsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Results">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Page.Resources>
+
+    <Grid Margin="48,16,48,32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <ui:TextBlock Text="Results" FontTypography="Title" />
+            <ui:TextBlock Text="{Binding QuizName}"
+                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+            <ui:TextBlock Text="{Binding EndedEarlyText}" Margin="0,4,0,0"
+                          Foreground="{ui:ThemeResource SystemFillColorCautionBrush}"
+                          Visibility="{Binding HasEndedEarlyText, Converter={StaticResource BoolToVis}}" />
+            <ui:TextBlock Text="{Binding HistoryNote}" Margin="0,4,0,0" TextWrapping="Wrap"
+                          Foreground="{ui:ThemeResource SystemFillColorCautionBrush}"
+                          Visibility="{Binding HasHistoryNote, Converter={StaticResource BoolToVis}}" />
+        </StackPanel>
+
+        <!-- Numbers -->
+        <UniformGrid Grid.Row="1" Rows="1" Margin="0,20,0,20">
+            <ui:Card Margin="0,0,12,0" Padding="20" HorizontalAlignment="Stretch">
+                <StackPanel>
+                    <ui:TextBlock Text="{Binding CorrectText}" FontSize="36" FontWeight="SemiBold" />
+                    <ui:TextBlock Text="correct" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Margin="0,0,12,0" Padding="20" HorizontalAlignment="Stretch">
+                <StackPanel>
+                    <ui:TextBlock Text="{Binding PercentText}" FontSize="36" FontWeight="SemiBold" />
+                    <ui:TextBlock Text="score" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Margin="0,0,12,0" Padding="20" HorizontalAlignment="Stretch">
+                <StackPanel>
+                    <ui:TextBlock Text="{Binding PointsText}" FontSize="36" FontWeight="SemiBold" />
+                    <ui:TextBlock Text="points" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Padding="20" HorizontalAlignment="Stretch">
+                <StackPanel>
+                    <ui:TextBlock Text="{Binding TimeText}" FontSize="36" FontWeight="SemiBold" />
+                    <ui:TextBlock Text="total time" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </ui:Card>
+        </UniformGrid>
+
+        <!-- Category breakdown (left) and missed questions (right) -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" MinWidth="300" MaxWidth="360" Margin="0,0,32,0"
+                        Visibility="{Binding HasCategoryBreakdown, Converter={StaticResource BoolToVis}}">
+                <ui:TextBlock Text="By category" FontTypography="Subtitle" Margin="0,0,0,2" />
+                <ui:TextBlock Text="Weakest first" Margin="0,0,0,12"
+                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300">
+                    <ItemsControl ItemsSource="{Binding CategoryRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,12">
+                                    <DockPanel>
+                                        <ui:TextBlock DockPanel.Dock="Right" Text="{Binding PercentText, Mode=OneWay}"
+                                                      FontWeight="SemiBold" />
+                                        <ui:TextBlock DockPanel.Dock="Right" Text="{Binding CountText, Mode=OneWay}"
+                                                      Margin="0,0,12,0"
+                                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                        <ui:TextBlock Text="{Binding Category, Mode=OneWay}"
+                                                      TextTrimming="CharacterEllipsis" />
+                                    </DockPanel>
+                                    <ProgressBar Value="{Binding Percent, Mode=OneWay}" Maximum="100"
+                                                 Height="6" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <ui:TextBlock Grid.Row="0" Text="{Binding MissedHeading}" FontTypography="Subtitle"
+                              Margin="0,0,0,8"
+                              Visibility="{Binding HasMissed, Converter={StaticResource BoolToVis}}" />
+
+                <ui:TextBlock Grid.Row="1" Text="No missed questions. Nice work!" FontTypography="Subtitle"
+                              HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24,0,0"
+                              Visibility="{Binding HasNoMissed, Converter={StaticResource BoolToVis}}" />
+
+                <ListBox Grid.Row="1" ItemsSource="{Binding MissedItems}"
+                         Visibility="{Binding HasMissed, Converter={StaticResource BoolToVis}}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <ui:TextBlock Text="{Binding Text}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                    <ui:TextBlock Text="{Binding Answer, StringFormat='Answer: {0}'}"
+                                                  Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                                </StackPanel>
+                                <Border Grid.Column="1" CornerRadius="10" Padding="8,2" VerticalAlignment="Top"
+                                        Background="{ui:ThemeResource ControlFillColorSecondaryBrush}">
+                                    <ui:TextBlock Text="{Binding Points, StringFormat='{}{0} pt'}" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Grid>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,16,0,0">
+            <ui:Button Content="Retry missed" Appearance="Primary" Margin="0,0,8,0"
+                       Visibility="{Binding HasMissed, Converter={StaticResource BoolToVis}}"
+                       Command="{Binding RetryMissedCommand}" />
+            <ui:Button Content="Run again" Margin="0,0,8,0" Command="{Binding RunAgainCommand}" />
+            <ui:Button Content="Choose another quiz" Margin="0,0,8,0"
+                       Command="{Binding ChooseAnotherQuizCommand}" />
+            <ui:Button Content="History" Margin="0,0,8,0" Command="{Binding ViewHistoryCommand}" />
+            <ui:Button Icon="{ui:SymbolIcon ArrowLeft24}" Content="Home" Command="{Binding GoHomeCommand}" />
+        </StackPanel>
+    </Grid>
+</Page>

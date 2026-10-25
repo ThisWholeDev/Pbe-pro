@@ -1,0 +1,285 @@
+<Page x:Class="PbePro.Views.QuizEditorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:local="clr-namespace:PbePro.Views"
+      Title="Edit Quizzes">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <local:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
+    </Page.Resources>
+
+    <Grid Margin="48,16,48,32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- List header -->
+        <DockPanel Grid.Row="0" Visibility="{Binding IsListView, Converter={StaticResource BoolToVis}}">
+            <ui:Button DockPanel.Dock="Right" Icon="{ui:SymbolIcon Add24}" Content="New" Appearance="Primary"
+                       Command="{Binding NewQuizCommand}" />
+            <StackPanel Orientation="Horizontal">
+                <ui:Button Icon="{ui:SymbolIcon ArrowLeft24}" Content="Home"
+                           Command="{Binding GoHomeCommand}" Margin="0,0,16,0" />
+                <ui:TextBlock Text="Quizzes" FontTypography="Title" VerticalAlignment="Center" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Editor header -->
+        <DockPanel Grid.Row="0" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:Button Content="Build randomly" Command="{Binding BuildRandomlyCommand}" Margin="0,0,8,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <ui:Button Icon="{ui:SymbolIcon ArrowLeft24}" Content="Quizzes"
+                           Command="{Binding BackToListCommand}" Margin="0,0,16,0" />
+                <StackPanel VerticalAlignment="Center">
+                    <ui:TextBox MinWidth="240" Text="{Binding EditingName, UpdateSourceTrigger=LostFocus}" />
+                    <ui:TextBlock Text="{Binding QuizDetails}" Margin="2,4,0,0"
+                                  Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </StackPanel>
+        </DockPanel>
+
+        <Border Grid.Row="1" Margin="0,16,0,0" Padding="12" CornerRadius="4"
+                Background="{ui:ThemeResource SystemFillColorCautionBackgroundBrush}"
+                Visibility="{Binding HasBanner, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+                <ui:Button DockPanel.Dock="Right" Content="Dismiss" VerticalAlignment="Top"
+                           Command="{Binding DismissBannerCommand}" Margin="12,0,0,0" />
+                <ScrollViewer MaxHeight="110" VerticalScrollBarVisibility="Auto">
+                    <ui:TextBlock Text="{Binding BannerText}" TextWrapping="Wrap" />
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Screen 1: quiz list -->
+        <Grid Grid.Row="2" Margin="0,16,0,0"
+              Visibility="{Binding IsListView, Converter={StaticResource BoolToVis}}">
+            <ui:TextBlock Text="No quizzes yet. Click New to create one."
+                          HorizontalAlignment="Center" VerticalAlignment="Center"
+                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                          Visibility="{Binding HasQuizzes, Converter={StaticResource InverseBoolToVis}}" />
+
+            <ListBox ItemsSource="{Binding Quizzes}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     MouseDoubleClick="OnQuizDoubleClick"
+                     Visibility="{Binding HasQuizzes, Converter={StaticResource BoolToVis}}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="4,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <ui:Button Grid.Column="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                       Appearance="Transparent" Padding="0"
+                                       Command="{Binding DataContext.OpenQuizCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                       CommandParameter="{Binding}">
+                                <StackPanel>
+                                    <ui:TextBlock Text="{Binding Name}" FontWeight="SemiBold"
+                                                  TextTrimming="CharacterEllipsis" />
+                                    <ui:TextBlock Text="{Binding Details}" Margin="0,4,0,0"
+                                                  Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </ui:Button>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <ui:Button Content="Rename" Margin="8,0,0,0"
+                                           Command="{Binding DataContext.RenameQuizCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}" />
+                                <ui:Button Icon="{ui:SymbolIcon Copy24}" Content="Duplicate" Margin="8,0,0,0"
+                                           Command="{Binding DataContext.DuplicateQuizCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}" />
+                                <ui:Button Icon="{ui:SymbolIcon Delete24}" Content="Delete" Appearance="Danger" Margin="8,0,0,0"
+                                           Command="{Binding DataContext.DeleteQuizCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <!-- Screen 2: edit one quiz -->
+        <Grid Grid.Row="2" Margin="0,16,0,0"
+              Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="1.2*" MinWidth="320" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: in this quiz -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <ui:TextBlock Grid.Row="0" Text="In this quiz" FontTypography="Subtitle" Margin="0,0,0,8" />
+
+                <Grid Grid.Row="1">
+                    <ui:TextBlock Text="This quiz has no questions. Add some from the bank."
+                                  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24,0,0"
+                                  TextWrapping="Wrap" TextAlignment="Center"
+                                  Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                  Visibility="{Binding HasQuizQuestions, Converter={StaticResource InverseBoolToVis}}" />
+
+                    <ListBox ItemsSource="{Binding QuizQuestions}"
+                             Visibility="{Binding HasQuizQuestions, Converter={StaticResource BoolToVis}}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="4,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ui:TextBlock Grid.Column="0" Text="{Binding Number, StringFormat='{}{0}.'}"
+                                                   Width="28" VerticalAlignment="Center"
+                                                   Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+
+                                    <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                        <ui:TextBlock Text="{Binding Preview}" FontWeight="SemiBold"
+                                                      TextTrimming="CharacterEllipsis" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Border CornerRadius="10" Padding="8,2" Margin="0,0,8,0"
+                                                    Background="{ui:ThemeResource ControlFillColorSecondaryBrush}">
+                                                <ui:TextBlock Text="{Binding Points, StringFormat='{}{0} pt'}" />
+                                            </Border>
+                                            <ui:TextBlock Text="{Binding TimeText}" VerticalAlignment="Center"
+                                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                            <ui:TextBlock Text="{Binding Category}" VerticalAlignment="Center" Margin="8,0,0,0"
+                                                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <ui:Button Icon="{ui:SymbolIcon ArrowUp24}" Padding="8,4"
+                                                   IsEnabled="{Binding CanMoveUp}"
+                                                   ToolTip="Move up"
+                                                   Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                   CommandParameter="{Binding}" />
+                                        <ui:Button Icon="{ui:SymbolIcon ArrowDown24}" Padding="8,4" Margin="4,0,0,0"
+                                                   IsEnabled="{Binding CanMoveDown}"
+                                                   ToolTip="Move down"
+                                                   Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                   CommandParameter="{Binding}" />
+                                        <ui:Button Icon="{ui:SymbolIcon Dismiss24}" Padding="8,4" Margin="4,0,0,0"
+                                                   ToolTip="Remove from quiz"
+                                                   Command="{Binding DataContext.RemoveFromQuizCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                   CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Grid>
+
+            <!-- Right: question bank -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                    <ui:Button DockPanel.Dock="Right" Content="Add all shown"
+                               Command="{Binding AddAllShownCommand}" />
+                    <ui:TextBlock Text="Question bank" FontTypography="Subtitle" VerticalAlignment="Center" />
+                </DockPanel>
+
+                <ui:TextBox Grid.Row="1" PlaceholderText="Search questions, answers, categories..."
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+
+                <Grid Grid.Row="2" Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Grid.Column="0" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding CategoryOptions}"
+                              SelectedItem="{Binding SelectedCategoryFilter}" />
+                    <ComboBox Grid.Column="2" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding PointsOptions}"
+                              SelectedItem="{Binding SelectedPointsFilter}" />
+                </Grid>
+
+                <ui:TextBlock Grid.Row="3" Text="{Binding BankCountText}" Margin="2,10,0,6"
+                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+
+                <ui:TextBlock Grid.Row="4" Text="The question bank is empty. Add questions under Edit Questions first."
+                              HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24,0,0"
+                              TextWrapping="Wrap" TextAlignment="Center"
+                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                              Visibility="{Binding HasBankItems, Converter={StaticResource InverseBoolToVis}}" />
+
+                <ListBox Grid.Row="4"
+                         ItemsSource="{Binding BankView}"
+                         Visibility="{Binding HasBankItems, Converter={StaticResource BoolToVis}}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <ui:TextBlock Text="{Binding Preview}" FontWeight="SemiBold"
+                                                  TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <Border CornerRadius="10" Padding="8,2" Margin="0,0,8,0"
+                                                Background="{ui:ThemeResource ControlFillColorSecondaryBrush}">
+                                            <ui:TextBlock Text="{Binding Points, StringFormat='{}{0} pt'}" />
+                                        </Border>
+                                        <ui:TextBlock Text="{Binding Category}" VerticalAlignment="Center"
+                                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <ui:Button Content="Add"
+                                               Command="{Binding DataContext.AddToQuizCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                               CommandParameter="{Binding}"
+                                               Visibility="{Binding IsInQuiz, Converter={StaticResource InverseBoolToVis}}" />
+                                    <ui:TextBlock Text="In quiz" VerticalAlignment="Center"
+                                                  Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                                  Visibility="{Binding IsInQuiz, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
