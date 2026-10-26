@@ -18,7 +18,8 @@ public class HistoryItemViewModel
         get
         {
             var percent = Result.AnsweredCount == 0 ? "—" : $"{Math.Round(Result.Percent)}%";
-            var text = $"{Result.CorrectCount} / {Result.AnsweredCount} correct ({percent}) · " +
+            var partial = Result.PartialCount > 0 ? $", {Result.PartialCount} partial" : "";
+            var text = $"{Result.CorrectCount} / {Result.AnsweredCount} correct ({percent}){partial} · " +
                        $"{Result.PointsEarned} / {Result.PointsAnswered} pts · " +
                        TimeFormat.Elapsed(TimeSpan.FromSeconds(Result.DurationSeconds));
 

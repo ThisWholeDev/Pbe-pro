@@ -5,7 +5,7 @@ using PbePro.Views;
 
 namespace PbePro.ViewModels;
 
-public sealed record MissedQuestionItem(string Text, string Answer, int Points, string? Category);
+public sealed record MissedQuestionItem(string Text, string Answer, int Points, string? Category, string PartialText);
 
 public partial class ResultsViewModel : ObservableObject
 {
@@ -30,8 +30,23 @@ public partial class ResultsViewModel : ObservableObject
 
         HistoryNote = historyNote ?? "";
 
-        foreach (var q in session.Missed)
-            MissedItems.Add(new MissedQuestionItem(q.Text, q.Answer, q.Points, q.Category));
+        // Anything short of full credit is listed, with a note when part of the points were earned.
+        var outcomes = session.Outcomes;
+        for (var i = 0; i < outcomes.Count; i++)
+        {
+            var outcome = outcomes[i];
+            if (outcome.Correct)
+                continue;
+
+            var question = session.Questions[i];
+            MissedItems.Add(new MissedQuestionItem(
+                question.Text, question.Answer, question.Points, question.Category,
+                outcome.EarnedPoints > 0
+                    ? $"Partial credit: {outcome.EarnedPoints} of {question.Points} points"
+                    : ""));
+        }
+
+        CorrectCaption = session.PartialCount > 0 ? $"correct · {session.PartialCount} partial" : "correct";
 
         CategoryRows = PracticeStats.ByCategory(session.Outcomes);
 
@@ -42,6 +57,7 @@ public partial class ResultsViewModel : ObservableObject
 
     public string QuizName => _quizName;
     public string CorrectText { get; }
+    public string CorrectCaption { get; }
     public string PercentText { get; }
     public string PointsText { get; }
     public string TimeText { get; }

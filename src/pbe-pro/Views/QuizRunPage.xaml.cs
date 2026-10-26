@@ -52,6 +52,15 @@ public partial class QuizRunPage : Page
         if (e.Handled || e.IsRepeat)
             return;
 
+        // 1-9 award that many points. Only partial amounts are accepted; full credit is C.
+        var digit = DigitFor(e.Key);
+        if (digit > 0)
+        {
+            _viewModel.AwardPointsCommand.Execute(digit);
+            e.Handled = true;
+            return;
+        }
+
         switch (e.Key)
         {
             case Key.Space:
@@ -77,5 +86,15 @@ public partial class QuizRunPage : Page
         }
 
         e.Handled = true;
+    }
+
+    /// <summary>The number on a top-row or number-pad key (1 to 9), or 0 for any other key.</summary>
+    private static int DigitFor(Key key)
+    {
+        if (key >= Key.D1 && key <= Key.D9)
+            return key - Key.D0;
+        if (key >= Key.NumPad1 && key <= Key.NumPad9)
+            return key - Key.NumPad0;
+        return 0;
     }
 }

@@ -30,7 +30,7 @@ public static class PracticeStats
                 g.Display,
                 g.Answered + 1,
                 g.Correct + (outcome.Correct ? 1 : 0),
-                g.Earned + (outcome.Correct ? outcome.Points : 0),
+                g.Earned + outcome.EarnedPoints,
                 g.Possible + outcome.Points);
         }
 

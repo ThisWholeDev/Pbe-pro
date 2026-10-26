@@ -59,6 +59,12 @@ public partial class QuizRunViewModel : ObservableObject
     public double QuestionFontSize { get; } = TextSizes.QuestionFontSize(SettingsService.Current.TextSize);
     public double AnswerFontSize { get; } = TextSizes.AnswerFontSize(SettingsService.Current.TextSize);
 
+    private readonly double _revealedQuestionFontSize =
+        TextSizes.RevealedQuestionFontSize(SettingsService.Current.TextSize);
+
+    /// <summary>The question is smaller while the answer is showing.</summary>
+    public double QuestionDisplayFontSize => IsAnswerShown ? _revealedQuestionFontSize : QuestionFontSize;
+
     [ObservableProperty] private string _progressText = "";
     [ObservableProperty] private string _scoreText = "";
     [ObservableProperty] private string _questionText = "";
@@ -73,11 +79,25 @@ public partial class QuizRunViewModel : ObservableObject
     [ObservableProperty] private bool _isFlashing;
     [ObservableProperty] private bool _canUndo;
 
+    /// <summary>
+    /// The 0-to-full marking scale for the current question. Empty for one-point questions, which
+    /// use the simple Incorrect / Correct buttons instead.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowScale))]
+    [NotifyPropertyChangedFor(nameof(ShowSimpleMarking))]
+    private List<ScaleOption> _scaleOptions = new();
+
+    [ObservableProperty] private string _scaleCaption = "";
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsReady))]
     [NotifyPropertyChangedFor(nameof(IsAnswerShown))]
     [NotifyPropertyChangedFor(nameof(ShowAnswerVisible))]
     [NotifyPropertyChangedFor(nameof(ShowAnswerButtonText))]
+    [NotifyPropertyChangedFor(nameof(ShowScale))]
+    [NotifyPropertyChangedFor(nameof(ShowSimpleMarking))]
+    [NotifyPropertyChangedFor(nameof(QuestionDisplayFontSize))]
     private QuestionPhase _phase = QuestionPhase.Ready;
 
     [ObservableProperty]
@@ -87,10 +107,12 @@ public partial class QuizRunViewModel : ObservableObject
 
     public bool IsReady => Phase == QuestionPhase.Ready;
     public bool IsAnswerShown => Phase == QuestionPhase.AnswerShown;
+    public bool ShowScale => IsAnswerShown && ScaleOptions.Count > 0;
+    public bool ShowSimpleMarking => IsAnswerShown && ScaleOptions.Count == 0;
     public bool ShowAnswerVisible => Phase != QuestionPhase.AnswerShown;
     public bool IsNotPaused => !IsPaused;
     public bool HasCategory => CategoryText.Length > 0;
-    public string PauseButtonText => IsPaused ? "Resume (P)" : "Pause (P)";
+    public string PauseButtonText => IsPaused ? "Resume" : "Pause";
 
     /// <summary>Space only shows the answer once the timer is running; before that it starts the timer.</summary>
     public string ShowAnswerButtonText => Phase == QuestionPhase.Running ? "Show answer (Space)" : "Show answer";
@@ -136,11 +158,36 @@ public partial class QuizRunViewModel : ObservableObject
         UpdateTimerDisplay();
     }
 
+    /// <summary>Full credit.</summary>
     [RelayCommand]
-    private void MarkCorrect() => Mark(true);
+    private void MarkCorrect()
+    {
+        if (_session.Current is { } question)
+            Award(question.Points);
+    }
 
+    /// <summary>No credit.</summary>
     [RelayCommand]
-    private void MarkIncorrect() => Mark(false);
+    private void MarkIncorrect() => Award(0);
+
+    /// <summary>
+    /// Part credit from a number key. Only partial amounts count, so a stray key press can't give
+    /// full credit; that takes C or the Correct button.
+    /// </summary>
+    [RelayCommand]
+    private void AwardPoints(int points)
+    {
+        if (_session.Current is { } question && points >= 1 && points < question.Points)
+            Award(points);
+    }
+
+    /// <summary>Any amount from the on-screen scale, from 0 up to full credit.</summary>
+    [RelayCommand]
+    private void AwardScale(int points)
+    {
+        if (_session.Current is { } question && points >= 0 && points <= question.Points)
+            Award(points);
+    }
 
     [RelayCommand]
     private void TogglePause()
@@ -243,12 +290,12 @@ public partial class QuizRunViewModel : ObservableObject
 
     // ----- Internals -----
 
-    private void Mark(bool correct)
+    private void Award(int points)
     {
         if (IsPaused || Phase != QuestionPhase.AnswerShown)
             return;
 
-        _session.Mark(correct);
+        _session.Award(points);
 
         if (_session.IsFinished)
             Finish();
@@ -288,7 +335,10 @@ public partial class QuizRunViewModel : ObservableObject
         CategoryText = SettingsService.Current.HideCategory ? "" : question.Category ?? "";
 
         ProgressText = $"Question {_session.CurrentNumber} of {_session.Total}";
-        ScoreText = $"Correct: {_session.CorrectCount} / {_session.AnsweredCount} answered";
+        ScaleOptions = PointsScale.Build(question.Points);
+        ScaleCaption = PointsScale.Caption(question.Points);
+        ScoreText = $"Correct: {_session.CorrectCount} / {_session.AnsweredCount} answered" +
+                    (_session.PartialCount > 0 ? $" · {_session.PartialCount} partial" : "");
         CanUndo = _session.CanUndo;
 
         Phase = QuestionPhase.Ready;
