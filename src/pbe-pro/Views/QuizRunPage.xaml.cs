@@ -47,6 +47,16 @@ public partial class QuizRunPage : Page
         _viewModel.Shutdown();
     }
 
+    private void OnPartialButtonClick(object sender, RoutedEventArgs e)
+    {
+        PartialPopup.IsOpen = !PartialPopup.IsOpen;
+    }
+
+    private void OnPartialOptionClick(object sender, RoutedEventArgs e)
+    {
+        PartialPopup.IsOpen = false;
+    }
+
     private void OnWindowKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Handled || e.IsRepeat)
@@ -57,6 +67,7 @@ public partial class QuizRunPage : Page
         if (digit > 0)
         {
             _viewModel.AwardPointsCommand.Execute(digit);
+            PartialPopup.IsOpen = false;
             e.Handled = true;
             return;
         }
