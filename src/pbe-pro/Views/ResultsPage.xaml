@@ -33,7 +33,7 @@
             <ui:Card Margin="0,0,12,0" Padding="20" HorizontalAlignment="Stretch">
                 <StackPanel>
                     <ui:TextBlock Text="{Binding CorrectText}" FontSize="36" FontWeight="SemiBold" />
-                    <ui:TextBlock Text="correct" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    <ui:TextBlock Text="{Binding CorrectCaption}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
                 </StackPanel>
             </ui:Card>
             <ui:Card Margin="0,0,12,0" Padding="20" HorizontalAlignment="Stretch">
@@ -124,6 +124,18 @@
                                     <ui:TextBlock Text="{Binding Text}" FontWeight="SemiBold" TextWrapping="Wrap" />
                                     <ui:TextBlock Text="{Binding Answer, StringFormat='Answer: {0}'}"
                                                   Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                                    <TextBlock Text="{Binding PartialText}"
+                                               Foreground="{ui:ThemeResource SystemFillColorCautionBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PartialText}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </StackPanel>
                                 <Border Grid.Column="1" CornerRadius="10" Padding="8,2" VerticalAlignment="Top"
                                         Background="{ui:ThemeResource ControlFillColorSecondaryBrush}">

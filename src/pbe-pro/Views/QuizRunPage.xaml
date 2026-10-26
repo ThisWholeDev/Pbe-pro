@@ -67,11 +67,11 @@
                     <DockPanel Grid.Row="0">
                         <TextBlock DockPanel.Dock="Right" Text="{Binding TimerText}" Style="{StaticResource TimerStyle}" />
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
-                            <Border CornerRadius="12" Padding="14,4" Margin="0,0,10,0"
+                            <Border CornerRadius="20" Padding="24,8" Margin="0,0,16,0" VerticalAlignment="Center"
                                     Background="{ui:ThemeResource ControlFillColorSecondaryBrush}">
-                                <ui:TextBlock Text="{Binding PointsText}" FontTypography="BodyStrong" />
+                                <ui:TextBlock Text="{Binding PointsText}" FontSize="36" FontWeight="Bold" />
                             </Border>
-                            <ui:TextBlock Text="{Binding CategoryText}" VerticalAlignment="Center"
+                            <ui:TextBlock Text="{Binding CategoryText}" FontSize="22" VerticalAlignment="Center"
                                           Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
                                           Visibility="{Binding HasCategory, Converter={StaticResource BoolToVis}}" />
                         </StackPanel>
@@ -80,25 +80,27 @@
                     <Grid Grid.Row="1" Margin="0,16">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center"
                                       Visibility="{Binding IsNotPaused, Converter={StaticResource BoolToVis}}">
-                            <ui:TextBlock Text="{Binding QuestionText}"
-                                          FontSize="{Binding QuestionFontSize}"
-                                          TextWrapping="Wrap"
-                                          HorizontalAlignment="Center" />
+                            <StackPanel>
+                                <ui:TextBlock Text="Question:" FontSize="22" FontWeight="SemiBold"
+                                              TextAlignment="Center" Margin="0,0,0,10" />
+                                <ui:TextBlock Text="{Binding QuestionText}" FontSize="{Binding QuestionDisplayFontSize}"
+                                              TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
                         </ScrollViewer>
 
                         <ui:TextBlock Text="Paused. Press P to resume." FontSize="40" TextWrapping="Wrap"
-                                      VerticalAlignment="Center"
-                                      HorizontalAlignment="Center"
+                                      TextAlignment="Center" VerticalAlignment="Center"
                                       Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
                                       Visibility="{Binding IsPaused, Converter={StaticResource BoolToVis}}" />
                     </Grid>
 
                     <StackPanel Grid.Row="2" MinHeight="96"
                                 Visibility="{Binding IsAnswerShown, Converter={StaticResource BoolToVis}}">
-                        <ui:TextBlock Text="Answer" FontTypography="BodyStrong"
-                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                        <ui:TextBlock Text="{Binding AnswerText}" FontSize="{Binding AnswerFontSize}" FontWeight="Bold"
-                                      TextWrapping="Wrap" Margin="0,4,0,0"
+                        <ui:TextBlock Text="Answer:" FontSize="26" FontWeight="SemiBold" TextAlignment="Center"
+                                      HorizontalAlignment="Center" />
+                        <ui:TextBlock Text="{Binding AnswerText}" FontSize="{Binding AnswerFontSize}"
+                                      FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"
+                                      HorizontalAlignment="Center" Margin="0,4,0,0"
                                       Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" />
                     </StackPanel>
                 </Grid>
@@ -107,35 +109,78 @@
             <!-- Controls -->
             <DockPanel Grid.Row="2">
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <ui:Button Focusable="False" Content="{Binding PauseButtonText}"
+                    <ui:Button Focusable="False" Content="{Binding PauseButtonText}" ToolTip="Pause or resume (P)"
                                Command="{Binding TogglePauseCommand}" Margin="0,0,8,0" />
-                    <ui:Button Focusable="False" Content="Undo (Ctrl+Z)"
+                    <ui:Button Focusable="False" Content="Undo" ToolTip="Undo the last mark (Ctrl+Z)"
                                IsEnabled="{Binding CanUndo}"
                                Command="{Binding UndoCommand}" Margin="0,0,8,0" />
-                    <ui:Button Focusable="False" Content="End quiz (Esc)"
+                    <ui:Button Focusable="False" Content="End quiz" ToolTip="End the quiz (Esc)"
                                Command="{Binding ExitCommand}" />
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right"
                             IsEnabled="{Binding IsNotPaused}">
                     <ui:Button Focusable="False" Content="Start timer (Space)" Appearance="Primary"
-                               MinWidth="190" Padding="24,14" FontSize="20" Margin="12,0,0,0"
+                               MinWidth="170" Padding="20,14" FontSize="20" Margin="12,0,0,0"
                                Visibility="{Binding IsReady, Converter={StaticResource BoolToVis}}"
                                Command="{Binding StartTimerCommand}" />
-                    <ui:Button Focusable="False" Content="{Binding ShowAnswerButtonText}" MinWidth="190" Padding="24,14"
-                               FontSize="20" Margin="12,0,0,0"
+                    <ui:Button Focusable="False" Content="{Binding ShowAnswerButtonText}" MinWidth="170"
+                               Padding="20,14" FontSize="20" Margin="12,0,0,0"
                                Visibility="{Binding ShowAnswerVisible, Converter={StaticResource BoolToVis}}"
                                Command="{Binding ShowAnswerCommand}" />
-                    <ui:Button Focusable="False" Content="Correct (C)" Appearance="Success"
-                               MinWidth="190" Padding="24,14" FontSize="20" Margin="12,0,0,0"
-                               Visibility="{Binding IsAnswerShown, Converter={StaticResource BoolToVis}}"
-                               Command="{Binding MarkCorrectCommand}" />
-                    <ui:Button Focusable="False" Content="Incorrect (X)" Appearance="Danger"
-                               MinWidth="190" Padding="24,14" FontSize="20" Margin="12,0,0,0"
-                               Visibility="{Binding IsAnswerShown, Converter={StaticResource BoolToVis}}"
-                               Command="{Binding MarkIncorrectCommand}" />
-                </StackPanel>
 
+                    <!-- One-point questions: simple Incorrect / Correct -->
+                    <ui:Button Focusable="False" Content="Incorrect (X)" Appearance="Danger"
+                               MinWidth="170" Padding="20,14" FontSize="20" Margin="12,0,0,0"
+                               Visibility="{Binding ShowSimpleMarking, Converter={StaticResource BoolToVis}}"
+                               Command="{Binding MarkIncorrectCommand}" />
+                    <ui:Button Focusable="False" Content="Correct (C)" Appearance="Success"
+                               MinWidth="170" Padding="20,14" FontSize="20" Margin="12,0,0,0"
+                               Visibility="{Binding ShowSimpleMarking, Converter={StaticResource BoolToVis}}"
+                               Command="{Binding MarkCorrectCommand}" />
+
+                    <!-- Questions worth more than one point: one scale from 0 up to full credit -->
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center"
+                                Visibility="{Binding ShowScale, Converter={StaticResource BoolToVis}}">
+                        <ui:TextBlock Text="{Binding ScaleCaption}" FontSize="13" Margin="2,0,0,6"
+                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                        <ItemsControl ItemsSource="{Binding ScaleOptions}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:Button Focusable="False" Width="100" Height="62" Padding="4,2"
+                                               Margin="0,0,6,0"
+                                               Command="{Binding DataContext.AwardScaleCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                               CommandParameter="{Binding Points}">
+                                        <ui:Button.Style>
+                                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                <Setter Property="Appearance" Value="Caution" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Kind}" Value="None">
+                                                        <Setter Property="Appearance" Value="Danger" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Kind}" Value="Full">
+                                                        <Setter Property="Appearance" Value="Success" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ui:Button.Style>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Points}" FontSize="24" FontWeight="SemiBold"
+                                                       HorizontalAlignment="Center" />
+                                            <TextBlock Text="{Binding Caption}" FontSize="12" MinHeight="16"
+                                                       HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </ui:Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
             </DockPanel>
         </Grid>
 

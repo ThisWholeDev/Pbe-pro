@@ -1,5 +1,9 @@
+using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Text.Json;
+using CsvHelper;
+using CsvHelper.Configuration;
 using PbePro.Models;
 
 namespace PbePro.Services;
@@ -83,6 +87,35 @@ public class JsonDataService
 
         File.WriteAllText(path,
             JsonSerializer.Serialize(new QuestionFile { Questions = questions.ToList() }, SerializerOptions));
+    }
+
+    /// <summary>
+    /// Writes questions to a CSV file with the headers the importer reads, so an exported file
+    /// can be imported again. The app's own storage stays JSON; this is only for sharing or editing in a spreadsheet.
+    /// </summary>
+    public static void ExportQuestionsCsv(string path, IEnumerable<Question> questions)
+    {
+        var directory = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
+
+        // UTF-8 with a BOM so Excel shows accented characters correctly; the importer reads it fine.
+        using var writer = new StreamWriter(path, append: false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        using var csv = new CsvWriter(writer, new CsvConfiguration(CultureInfo.InvariantCulture));
+
+        foreach (var header in ImportService.AllHeaders)
+            csv.WriteField(header);
+        csv.NextRecord();
+
+        foreach (var q in questions)
+        {
+            csv.WriteField(q.Id);
+            csv.WriteField(q.Text);
+            csv.WriteField(q.Answer);
+            csv.WriteField(q.Points);
+            csv.WriteField(q.Category);
+            csv.NextRecord();
+        }
     }
 
     // ----- Quizzes -----

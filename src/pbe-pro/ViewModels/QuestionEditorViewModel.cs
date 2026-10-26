@@ -135,7 +135,7 @@ public partial class QuestionEditorViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportAsync()
     {
-        var path = Dialogs.PickOpenFile("Import questions", "JSON files (*.json)|*.json|All files (*.*)|*.*");
+        var path = Dialogs.PickOpenFile("Import questions", "CSV files (*.csv)|*.csv|All files (*.*)|*.*");
         if (path is null)
             return;
 
@@ -179,13 +179,18 @@ public partial class QuestionEditorViewModel : ObservableObject
             return;
         }
 
-        var path = Dialogs.PickSaveFile("Export questions", "JSON files (*.json)|*.json", "questions-export.json");
+        var path = Dialogs.PickSaveFile("Export questions",
+            "CSV files (*.csv)|*.csv|JSON files (*.json)|*.json", "questions-export.csv");
         if (path is null)
             return;
 
         try
         {
-            JsonDataService.ExportQuestions(path, toExport);
+            // The file extension decides the format; anything other than .json is written as CSV.
+            if (string.Equals(Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase))
+                JsonDataService.ExportQuestions(path, toExport);
+            else
+                JsonDataService.ExportQuestionsCsv(path, toExport);
             await Dialogs.InfoAsync("Export finished", $"Exported {toExport.Count} questions to:\n{path}");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

@@ -32,9 +32,11 @@ public class TextSizesTests
     [InlineData(QuestionTextSize.Medium)]
     [InlineData(QuestionTextSize.Large)]
     [InlineData(QuestionTextSize.ExtraLarge)]
-    public void Answer_IsSmallerThanQuestion(QuestionTextSize size)
+    public void RevealedAnswer_IsLargerThanTheQuestion_WhichShrinksToMakeRoom(QuestionTextSize size)
     {
-        Assert.True(TextSizes.AnswerFontSize(size) < TextSizes.QuestionFontSize(size));
+        Assert.True(TextSizes.AnswerFontSize(size) > TextSizes.QuestionFontSize(size));
+        Assert.True(TextSizes.RevealedQuestionFontSize(size) < TextSizes.QuestionFontSize(size));
+        Assert.True(TextSizes.RevealedQuestionFontSize(size) < TextSizes.AnswerFontSize(size));
     }
 
     [Fact]

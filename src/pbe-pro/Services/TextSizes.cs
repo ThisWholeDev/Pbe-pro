@@ -13,6 +13,9 @@ public static class TextSizes
         _ => 40
     };
 
-    /// <summary>The answer is shown slightly smaller than the question.</summary>
-    public static double AnswerFontSize(QuestionTextSize size) => Math.Round(QuestionFontSize(size) * 0.9);
+    /// <summary>The revealed answer is the focus of the screen, so it is larger than the question was.</summary>
+    public static double AnswerFontSize(QuestionTextSize size) => Math.Round(QuestionFontSize(size) * 1.2);
+
+    /// <summary>The question shrinks once the answer is showing, to make room for it.</summary>
+    public static double RevealedQuestionFontSize(QuestionTextSize size) => Math.Round(QuestionFontSize(size) * 0.7);
 }
