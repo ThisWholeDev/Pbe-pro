@@ -2,11 +2,15 @@ using PbePro.Models;
 
 namespace PbePro.Services;
 
-public sealed record CategoryStat(string Category, int Answered, int Correct, int PointsEarned, int PointsPossible)
+public sealed record CategoryStat(string Category,
+                                  int Answered,
+                                  int Correct,
+                                  int PointsEarned,
+                                  int PointsPossible)
 {
-    public double Percent => Answered == 0 ? 0 : 100.0 * Correct / Answered;
+    public double Percent => PointsEarned == 0 ? 0 : 100.0 * PointsEarned / PointsPossible;
     public string PercentText => $"{Math.Round(Percent)}%";
-    public string CountText => $"{Correct} / {Answered}";
+    public string CountText => $"Points {PointsEarned} / {PointsPossible}";
 }
 
 public static class PracticeStats
@@ -35,10 +39,10 @@ public static class PracticeStats
         }
 
         return groups.Values
-            .Select(g => new CategoryStat(g.Display, g.Answered, g.Correct, g.Earned, g.Possible))
-            .OrderBy(c => c.Percent)
-            .ThenBy(c => c.Category, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+                     .Select(g => new CategoryStat(g.Display, g.Answered, g.Correct, g.Earned, g.Possible))
+                     .OrderBy(c => c.Percent)
+                     .ThenBy(c => c.Category, StringComparer.OrdinalIgnoreCase)
+                     .ToList();
     }
 
     /// <summary>
@@ -54,7 +58,9 @@ public static class PracticeStats
                 latest[outcome.QuestionId] = outcome.Correct;
         }
 
-        return latest.Where(p => !p.Value).Select(p => p.Key).ToHashSet();
+        return latest.Where(p => !p.Value)
+                     .Select(p => p.Key)
+                     .ToHashSet();
     }
 }
 
@@ -67,9 +73,14 @@ public static class MissedPractice
     public static List<Question> Build(IEnumerable<Question> bank, IEnumerable<QuizResult> results)
     {
         var missed = PracticeStats.MissedLastTime(results);
-        return bank.Where(q => missed.Contains(q.Id)).ToList();
+        return bank.Where(q => missed.Contains(q.Id))
+                   .ToList();
     }
 
-    public static List<Question> Shuffled(IReadOnlyList<Question> questions) =>
-        QuizRandomPicker.Pick(questions, Array.Empty<string>(), questions.Count, Random.Shared).ToList();
+    public static List<Question> Shuffled(IReadOnlyList<Question> questions)
+    {
+        return QuizRandomPicker.Pick(questions, [], questions.Count, Random.Shared)
+                               .ToList();
+    }
+
 }

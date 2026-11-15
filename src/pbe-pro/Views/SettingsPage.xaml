@@ -26,6 +26,66 @@
             <ScrollViewer Grid.Row="1" Margin="0,24,0,0" VerticalScrollBarVisibility="Auto">
                 <StackPanel MaxWidth="720" HorizontalAlignment="Left">
 
+                    <!-- About -->
+                    <ui:Card Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <ui:TextBlock Text="About" FontTypography="Subtitle" />
+
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <ui:TextBlock Grid.Row="0" Grid.Column="0" Text="Version"
+                                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                              Margin="0,0,0,8" />
+                                <ui:TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Version}"
+                                              Margin="0,0,0,8" />
+
+                                <ui:TextBlock Grid.Row="1" Grid.Column="0" Text="Product version"
+                                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                              Margin="0,0,0,8" />
+                                <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ProductVersion}"
+                                              TextWrapping="Wrap" Margin="0,0,0,8" />
+
+                                <ui:TextBlock Grid.Row="2" Grid.Column="0" Text="Author"
+                                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                              Margin="0,0,0,8" />
+                                <ui:TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Author}"
+                                              Margin="0,0,0,8" />
+
+                                <ui:TextBlock Grid.Row="3" Grid.Column="0" Text="GitHub"
+                                              Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                              VerticalAlignment="Center" />
+                                <ui:HyperlinkButton Grid.Row="3" Grid.Column="1"
+                                                    Content="{Binding GitHubUrl}"
+                                                    Command="{Binding OpenGitHubCommand}"
+                                                    Padding="0"
+                                                    Visibility="{Binding HasGitHubUrl, Converter={StaticResource BoolToVis}}" />
+                                <ui:TextBlock Grid.Row="3" Grid.Column="1" Text="Not available"
+                                              VerticalAlignment="Center">
+                                    <ui:TextBlock.Style>
+                                        <Style TargetType="ui:TextBlock">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasGitHubUrl}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:TextBlock.Style>
+                                </ui:TextBlock>
+                            </Grid>
+                        </StackPanel>
+                    </ui:Card>
+
                     <!-- Theme -->
                     <ui:Card Padding="20" Margin="0,0,0,16">
                         <StackPanel>

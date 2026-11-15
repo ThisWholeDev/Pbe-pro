@@ -39,11 +39,11 @@ public partial class ResultsViewModel : ObservableObject
                 continue;
 
             var question = session.Questions[i];
-            MissedItems.Add(new MissedQuestionItem(
-                question.Text, question.Answer, question.Points, question.Category,
-                outcome.EarnedPoints > 0
-                    ? $"Partial credit: {outcome.EarnedPoints} of {question.Points} points"
-                    : ""));
+            MissedItems.Add(new MissedQuestionItem(question.Text,
+                                                   question.Answer,
+                                                   question.Points,
+                                                   question.Category,
+                                                   outcome.EarnedPoints > 0 ? $"Partial credit: {outcome.EarnedPoints} of {question.Points} points" : ""));
         }
 
         CorrectCaption = session.PartialCount > 0 ? $"correct · {session.PartialCount} partial" : "correct";

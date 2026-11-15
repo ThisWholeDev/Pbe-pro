@@ -11,7 +11,13 @@
     <Version>1.2.0</Version>
     <RepositoryUrl>https://github.com/ThisWholeDev/Pbe-pro</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Authors>Kyle Westfall</Authors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="RepositoryUrl" Value="$(RepositoryUrl)" />
+    <AssemblyMetadata Include="Authors" Value="$(Authors)" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0" />
