@@ -41,5 +41,5 @@ public class QuizResult
     [JsonIgnore] public int PartialCount => Outcomes.Count(o => o.IsPartial);
     [JsonIgnore] public int PointsAnswered => Outcomes.Sum(o => o.Points);
     [JsonIgnore] public bool EndedEarly => AnsweredCount < TotalQuestions;
-    [JsonIgnore] public double Percent => AnsweredCount == 0 ? 0 : 100.0 * CorrectCount / AnsweredCount;
+    [JsonIgnore] public double Percent => AnsweredCount == 0 ? 0 : 100.0 * PointsEarned / PointsAnswered;
 }

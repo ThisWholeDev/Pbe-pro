@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Data;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PbePro.Models;
@@ -18,10 +19,13 @@ public partial class QuestionEditorViewModel : ObservableObject
     private readonly JsonDataService _service = JsonDataService.CreateFromSettings();
     private readonly List<Quiz> _quizzes;
     private readonly List<string> _loadMessages = [];
+    private readonly DispatcherTimer _saveTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private string? _saveError;
 
     public QuestionEditorViewModel()
     {
+        _saveTimer.Tick += (_, _) => Save();
+
         var loaded = _service.LoadQuestions();
         foreach (var question in loaded.Items)
             AddItem(question);
@@ -72,7 +76,11 @@ public partial class QuestionEditorViewModel : ObservableObject
     // ----- Commands -----
 
     [RelayCommand]
-    private void GoHome() => Navigator.GoHome();
+    private void GoHome()
+    {
+        FlushPendingSave();
+        Navigator.GoHome();
+    }
 
     [RelayCommand]
     private void AddQuestion()
@@ -219,20 +227,30 @@ public partial class QuestionEditorViewModel : ObservableObject
 
     private void OnItemChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(QuestionItemViewModel.Text)
-            or nameof(QuestionItemViewModel.Answer)
-            or nameof(QuestionItemViewModel.Points)
-            or nameof(QuestionItemViewModel.Category))
+        switch (e.PropertyName)
         {
-            Save();
-            SyncOptions();
-            RefreshView();
+            case nameof(QuestionItemViewModel.Text):
+            case nameof(QuestionItemViewModel.Answer):
+                // Edited live: restart the timer so we save once typing pauses. No re-filtering or
+                // option rebuilding here, so the item can't vanish from the list mid-edit.
+                _saveTimer.Stop();
+                _saveTimer.Start();
+                break;
+
+            case nameof(QuestionItemViewModel.Points):
+            case nameof(QuestionItemViewModel.Category):
+                Save(); // also writes any pending text edits and cancels the timer
+                SyncOptions();
+                RefreshView();
+                break;
         }
     }
 
     /// <summary>Saves every complete question. Incomplete ones stay on screen but are not written to disk.</summary>
     private void Save()
     {
+        _saveTimer.Stop();
+
         try
         {
             _service.SaveQuestions(Items.Where(i => !i.IsIncomplete).Select(i => i.Model));
@@ -244,6 +262,13 @@ public partial class QuestionEditorViewModel : ObservableObject
         }
 
         UpdateBanner();
+    }
+
+    /// <summary>Writes immediately if a debounced save is still waiting.</summary>
+    public void FlushPendingSave()
+    {
+        if (_saveTimer.IsEnabled)
+            Save();
     }
 
     private bool Matches(object obj)

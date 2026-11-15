@@ -489,7 +489,11 @@ public partial class QuizEditorViewModel : ObservableObject
         Sync(CategoryOptions, categoryOptions);
 
         var pointsOptions = new List<string> { AllPoints };
-        pointsOptions.AddRange(_bank.Values.Select(q => q.Points).Distinct().OrderBy(p => p).Select(p => p.ToString()));
+        pointsOptions
+            .AddRange(_bank.Values.Select(q => q.Points)
+                           .Distinct()
+                           .OrderBy(p => p)
+                           .Select(p => p.ToString()));
         Sync(PointsOptions, pointsOptions);
 
         if (SelectedCategoryFilter is null || !CategoryOptions.Contains(SelectedCategoryFilter))

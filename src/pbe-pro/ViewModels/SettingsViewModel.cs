@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Media;
+using System.Reflection;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -178,6 +179,61 @@ public partial class SettingsViewModel : ObservableObject
 
         if (message.Length > 0)
             await Dialogs.InfoAsync("Data folder changed", message);
+    }
+
+    // ----- About -----
+
+    // RepositoryUrl and Authors come from the csproj. They're copied into assembly metadata
+    // by the <AssemblyMetadata> items in the project file, so they're readable at runtime.
+    private static string? Metadata(string key) =>
+        Assembly.GetExecutingAssembly()
+                .GetCustomAttributes<AssemblyMetadataAttribute>()
+                .FirstOrDefault(a => a.Key == key)
+                ?.Value;
+
+    public string GitHubUrl
+    {
+        get
+        {
+            var url = Metadata("RepositoryUrl");
+            if (string.IsNullOrWhiteSpace(url))
+                return "";
+
+            url = url.Trim();
+            return url.EndsWith(".git", StringComparison.OrdinalIgnoreCase) ? url[..^4] : url;
+        }
+    }
+
+    public bool HasGitHubUrl => GitHubUrl.Length > 0;
+
+    public string Author =>
+        string.IsNullOrWhiteSpace(Metadata("Authors")) ? "Unknown" : Metadata("Authors")!;
+
+    /// <summary>Assembly version, e.g. 1.2.0.0.</summary>
+    public string Version =>
+        Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
+
+    /// <summary>
+    /// Product (informational) version, e.g. 1.2.0+abc1234. Read from the assembly attribute
+    /// so it also works in single-file publishes.
+    /// </summary>
+    public string ProductVersion =>
+        Assembly.GetExecutingAssembly()
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion
+        ?? "Unknown";
+
+    [RelayCommand(CanExecute = nameof(HasGitHubUrl))]
+    private async Task OpenGitHubAsync()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(GitHubUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            await Dialogs.InfoAsync("Couldn’t open the link", ex.Message);
+        }
     }
 
     private void RefreshFolder()

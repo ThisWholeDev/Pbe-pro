@@ -44,12 +44,12 @@ public sealed class QuizSession
     /// <summary>One entry per answered question, in quiz order.</summary>
     public IReadOnlyList<QuestionOutcome> Outcomes =>
         _awarded.Select((points, i) => new QuestionOutcome
-        {
-            QuestionId = _questions[i].Id,
+                {
+                    QuestionId = _questions[i].Id,
             Correct = points >= _questions[i].Points,
             Points = _questions[i].Points,
-            PointsAwarded = points,
-            Category = _questions[i].Category
+                    PointsAwarded = points,
+                    Category = _questions[i].Category
         }).ToList();
 
     /// <summary>Full credit when correct, none when not.</summary>

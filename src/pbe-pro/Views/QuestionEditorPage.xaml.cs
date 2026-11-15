@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -15,6 +16,19 @@ public partial class QuestionEditorPage : Page
         InitializeComponent();
         DataContext = _viewModel;
 
+        // Text edits are saved on a short delay; make sure nothing is lost when leaving the page or closing the app.
+        Loaded += (_, _) =>
+        {
+            if (Application.Current is { } app)
+                app.Exit += OnAppExit;
+        };
+        Unloaded += (_, _) =>
+        {
+            if (Application.Current is { } app)
+                app.Exit -= OnAppExit;
+            _viewModel.FlushPendingSave();
+        };
+
         _viewModel.QuestionAdded += () =>
             Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
             {
@@ -23,6 +37,8 @@ public partial class QuestionEditorPage : Page
                 QuestionTextBox.Focus();
             }));
     }
+
+    private void OnAppExit(object sender, ExitEventArgs e) => _viewModel.FlushPendingSave();
 
     /// <summary>Enter in the answer box saves it and starts the next question, for fast entry.</summary>
     private void OnAnswerKeyDown(object sender, KeyEventArgs e)

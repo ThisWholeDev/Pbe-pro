@@ -146,13 +146,13 @@
                         <ui:TextBlock Text="Question" FontTypography="BodyStrong" />
                         <ui:TextBox x:Name="QuestionTextBox" Margin="0,6,0,16"
                                     AcceptsReturn="True" TextWrapping="Wrap" MinHeight="90"
-                                    Text="{Binding SelectedQuestion.Text, UpdateSourceTrigger=LostFocus}" />
+                                    Text="{Binding SelectedQuestion.Text, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
 
                         <ui:TextBlock Text="Answer" FontTypography="BodyStrong" />
                         <ui:TextBox x:Name="AnswerTextBox" Margin="0,6,0,16"
                                     PlaceholderText="Press Enter to save and add the next question"
                                     KeyDown="OnAnswerKeyDown"
-                                    Text="{Binding SelectedQuestion.Answer, UpdateSourceTrigger=LostFocus}" />
+                                    Text="{Binding SelectedQuestion.Answer, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
 
                         <ui:TextBlock Text="Points" FontTypography="BodyStrong" />
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,16">
