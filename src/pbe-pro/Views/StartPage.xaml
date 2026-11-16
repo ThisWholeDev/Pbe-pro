@@ -25,9 +25,19 @@
         <StackPanel Grid.Row="0" Margin="8,0,0,24">
             <ui:TextBlock Text="PBE Pro" FontTypography="Title" />
             <ui:TextBlock Text="Get the team ready for competition."
-                          Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-        </StackPanel>
+                        Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
 
+            <ui:InfoBar Margin="0,16,0,0"
+                        Title="Update available"
+                        Message="{Binding UpdateMessage}"
+                        Severity="Informational"
+                        IsClosable="True"
+                        IsOpen="{Binding IsUpdateAvailable, Mode=TwoWay}">
+                <ui:Button Content="View release"
+                        Icon="{ui:SymbolIcon Open24}"
+                        Command="{Binding OpenUpdatePageCommand}" />
+            </ui:InfoBar>
+        </StackPanel>
         <!-- One large Start button across the top; the other options share the row directly beneath it. -->
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>

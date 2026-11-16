@@ -27,8 +27,10 @@ public partial class MainWindow : FluentWindow
     }
 
     /// <summary>Called by the full-screen service: the title bar is hidden while in full screen.</summary>
-    public void SetTitleBarVisible(bool visible) =>
+    public void SetTitleBarVisible(bool visible)
+    {
         AppTitleBar.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+    }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {

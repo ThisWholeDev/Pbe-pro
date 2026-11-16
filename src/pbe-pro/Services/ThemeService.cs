@@ -7,12 +7,18 @@ namespace PbePro.Services;
 public static class ThemeService
 {
     private static Window? _window;
-    private static bool _watching;
+    private static Window? _watchedWindow;
 
     public static void Initialize(Window window)
     {
         _window = window;
-        Apply(SettingsService.Current.Theme);
+
+        // Applying the theme before the window has loaded can't hook system theme
+        // changes yet, so wait until it has.
+        if (window.IsLoaded)
+            Apply(SettingsService.Current.Theme);
+        else
+            window.Loaded += (_, _) => Apply(SettingsService.Current.Theme);
     }
 
     public static void Apply(ThemePreference preference)
@@ -20,11 +26,12 @@ public static class ThemeService
         if (_window is null)
             return;
 
-        // Only stop following Windows if we started following it earlier.
-        if (_watching)
+        // Stop following Windows, but only on the window we actually started watching.
+        if (_watchedWindow is not null)
         {
-            SystemThemeWatcher.UnWatch(_window);
-            _watching = false;
+            if (_watchedWindow.IsLoaded)
+                SystemThemeWatcher.UnWatch(_watchedWindow);
+            _watchedWindow = null;
         }
 
         switch (preference)
@@ -40,7 +47,7 @@ public static class ThemeService
             default:
                 ApplicationThemeManager.ApplySystemTheme();
                 SystemThemeWatcher.Watch(_window);
-                _watching = true;
+                _watchedWindow = _window;
                 break;
         }
     }
