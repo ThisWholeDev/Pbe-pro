@@ -74,7 +74,7 @@ public class QuizResultTests
         Assert.Equal(3, result.PointsEarned);
         Assert.Equal(5, result.PointsAnswered);
         Assert.True(result.EndedEarly);
-        Assert.Equal(66.67, result.Percent, 2);
+        Assert.Equal(60.0, result.Percent, 2);
     }
 
     [Fact]

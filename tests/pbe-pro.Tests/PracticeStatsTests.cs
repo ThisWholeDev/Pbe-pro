@@ -19,26 +19,26 @@ public class PracticeStatsTests
     [Fact]
     public void ByCategory_GroupsIgnoringCase_AndTotalsPoints()
     {
-        var stats = PracticeStats.ByCategory(new[]
-        {
+        var stats = PracticeStats.ByCategory(
+        [
             O("1", true, 1, "Science"),
             O("2", false, 2, "science"),
             O("3", true, 1, "Literature")
-        });
+        ]);
 
         var science = stats.Single(s => s.Category == "Science");
         Assert.Equal(2, science.Answered);
         Assert.Equal(1, science.Correct);
         Assert.Equal(1, science.PointsEarned);
         Assert.Equal(3, science.PointsPossible);
-        Assert.Equal("1 / 2", science.CountText);
-        Assert.Equal("50%", science.PercentText);
+        Assert.Equal("Points 1 / 3", science.CountText);
+        Assert.Equal("33%", science.PercentText);
     }
 
     [Fact]
     public void ByCategory_PutsUncategorisedQuestionsInTheirOwnGroup()
     {
-        var stats = PracticeStats.ByCategory(new[] { O("1", false), O("2", false, 1, "  ") });
+        var stats = PracticeStats.ByCategory([O("1", false), O("2", false, 1, "  ")]);
 
         var group = Assert.Single(stats);
         Assert.Equal(PracticeStats.NoCategory, group.Category);
@@ -48,15 +48,15 @@ public class PracticeStatsTests
     [Fact]
     public void ByCategory_ListsWeakestFirst()
     {
-        var stats = PracticeStats.ByCategory(new[]
-        {
+        var stats = PracticeStats.ByCategory(
+        [
             O("1", true, 1, "Strong"),
             O("2", false, 1, "Weak"),
             O("3", true, 1, "Middle"),
             O("4", false, 1, "Middle")
-        });
+        ]);
 
-        Assert.Equal(new[] { "Weak", "Middle", "Strong" }, stats.Select(s => s.Category));
+        Assert.Equal(["Weak", "Middle", "Strong"], stats.Select(s => s.Category));
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class PracticeStatsTests
         var newer = R(Later, O("q1", true), O("q2", false));
 
         // Deliberately newest first.
-        var missed = PracticeStats.MissedLastTime(new[] { newer, older });
+        var missed = PracticeStats.MissedLastTime([newer, older]);
 
         Assert.Equal(new[] { "q2" }, missed);
     }
@@ -82,11 +82,11 @@ public class PracticeStatsTests
     [Fact]
     public void MissedLastTime_ForgetsAQuestionOnceItIsAnsweredCorrectly()
     {
-        var missed = PracticeStats.MissedLastTime(new[]
-        {
+        var missed = PracticeStats.MissedLastTime(
+        [
             R(Earlier, O("q1", false)),
             R(Later, O("q1", true))
-        });
+        ]);
 
         Assert.Empty(missed);
     }
@@ -115,6 +115,6 @@ public class PracticeStatsTests
 
         var practice = MissedPractice.Build(bank, history);
 
-        Assert.Equal(new[] { "q2", "q3" }, practice.Select(q => q.Id));
+        Assert.Equal(["q2", "q3"], practice.Select(q => q.Id));
     }
 }
