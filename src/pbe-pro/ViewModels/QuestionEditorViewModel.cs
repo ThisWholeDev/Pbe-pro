@@ -20,11 +20,14 @@ public partial class QuestionEditorViewModel : ObservableObject
     private readonly List<Quiz> _quizzes;
     private readonly List<string> _loadMessages = [];
     private readonly DispatcherTimer _saveTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
+
+    private bool _categoryDirty;
     private string? _saveError;
 
     public QuestionEditorViewModel()
     {
         _saveTimer.Tick += (_, _) => Save();
+        _saveTimer.Tick += (_, _) => CommitPending();
 
         var loaded = _service.LoadQuestions();
         foreach (var question in loaded.Items)
@@ -229,21 +232,44 @@ public partial class QuestionEditorViewModel : ObservableObject
     {
         switch (e.PropertyName)
         {
+            case nameof(QuestionItemViewModel.Category):
+                _categoryDirty = true;
+                goto case nameof(QuestionItemViewModel.Text);
+
             case nameof(QuestionItemViewModel.Text):
             case nameof(QuestionItemViewModel.Answer):
-                // Edited live: restart the timer so we save once typing pauses. No re-filtering or
-                // option rebuilding here, so the item can't vanish from the list mid-edit.
+                // Edited live: restart the timer so we save once typing pauses.
                 _saveTimer.Stop();
                 _saveTimer.Start();
                 break;
 
             case nameof(QuestionItemViewModel.Points):
-            case nameof(QuestionItemViewModel.Category):
                 Save(); // also writes any pending text edits and cancels the timer
                 SyncOptions();
                 RefreshView();
+                _categoryDirty = false;
                 break;
         }
+    }
+
+    /// <summary>Saves, then refreshes category options and filtering if the category changed.</summary>
+    private void CommitPending()
+    {
+        Save();
+
+        if (_categoryDirty)
+        {
+            _categoryDirty = false;
+            SyncOptions();
+            RefreshView();
+        }
+    }
+
+    /// <summary>Writes immediately if a debounced save is still waiting.</summary>
+    public void FlushPendingSave()
+    {
+        if (_saveTimer.IsEnabled)
+            CommitPending();
     }
 
     /// <summary>Saves every complete question. Incomplete ones stay on screen but are not written to disk.</summary>
@@ -262,13 +288,6 @@ public partial class QuestionEditorViewModel : ObservableObject
         }
 
         UpdateBanner();
-    }
-
-    /// <summary>Writes immediately if a debounced save is still waiting.</summary>
-    public void FlushPendingSave()
-    {
-        if (_saveTimer.IsEnabled)
-            Save();
     }
 
     private bool Matches(object obj)

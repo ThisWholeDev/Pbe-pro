@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>PbePro</RootNamespace>
     <AssemblyName>PbePro</AssemblyName>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <RepositoryUrl>https://github.com/ThisWholeDev/Pbe-pro</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Kyle Westfall</Authors>

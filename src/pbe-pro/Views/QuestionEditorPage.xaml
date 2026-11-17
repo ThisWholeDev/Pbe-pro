@@ -164,12 +164,14 @@
                         </StackPanel>
 
                         <ui:TextBlock Text="Category" FontTypography="BodyStrong" />
-                        <ComboBox IsEditable="True" Margin="0,6,0,24" HorizontalAlignment="Stretch"
+                        <ComboBox IsEditable="True"
                                   ItemsSource="{Binding CategorySuggestions}"
-                                  Text="{Binding SelectedQuestion.Category, UpdateSourceTrigger=LostFocus}" />
+                                  Text="{Binding SelectedQuestion.Category, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <ui:Button Icon="{ui:SymbolIcon Delete24}" Content="Delete question"
-                                   Appearance="Danger" Command="{Binding DeleteQuestionCommand}" />
+                        <ui:Button Icon="{ui:SymbolIcon Delete24}"
+                                   Content="Delete question"
+                                   Appearance="Danger"
+                                   Command="{Binding DeleteQuestionCommand}" />
                     </StackPanel>
                 </ui:Card>
             </Grid>
